@@ -11,6 +11,8 @@ function coJobConsumer($id) {
 	$workerId = $id;
 
 	$client = getConnection();
+	$client->watch('test');
+	$client->ignore('default');
 
 	echo $workerId." connected\r\n";
 
@@ -29,11 +31,13 @@ function coJobProducer() {
 	$client = getConnection();
 	echo "producer connected\r\n";
 
+	$client->use('test');
+
 	while (true) {
 		$ts = time();
 		$ret = $client->put($ts);
 		echo "Put job id: $ret\r\n";
-		Co::sleep(0.1);
+		Co::sleep(0.2);
 	}
 }
 
@@ -54,6 +58,12 @@ if ($workerNum > 0) {
 }
 
 $scheduler->add('coJobProducer');
+
+// $scheduler->add(function() {
+// 	$client = getConnection();
+// 	$stats = $client->statsTube('test');
+// 	print_r($stats);
+// });
 
 $scheduler->start();
 
