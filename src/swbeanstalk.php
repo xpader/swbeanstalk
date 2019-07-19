@@ -275,18 +275,12 @@ class SWBeanstalk {
 		}
 
 		$cmd .= "\r\n";
-		$len = strlen($cmd);
-		$writeLen = $this->connection->send($cmd);
 
 		if ($this->debug) {
 			$this->wrap($cmd);
 		}
-
-		if ($writeLen != $len) {
-			throw new \RuntimeException('Write data to socket failed.');
-		}
-
-		return $writeLen;
+		
+		return $this->connection->send($cmd);
 	}
 
 	protected function recv()
