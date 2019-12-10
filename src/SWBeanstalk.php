@@ -31,8 +31,13 @@ class SWBeanstalk {
 		} else {
 			$client->close();
 		}
+
+		return $this->connected;
 	}
 
+	/**
+	 * Put job to current tube
+	 */
 	public function put($data, $pri=self::DEFAULT_PRI, $delay=0, $ttr=self::DEFAULT_TTR)
 	{
 		$this->send(sprintf("put %d %d %d %d\r\n%s", $pri, $delay, $ttr, strlen($data), $data));
@@ -46,7 +51,7 @@ class SWBeanstalk {
 		}
 	}
 
-	public function use($tube)
+	public function useTube($tube)
 	{
 		$this->send(sprintf("use %s", $tube));
 		$ret = $this->recv();
@@ -279,7 +284,7 @@ class SWBeanstalk {
 		if ($this->debug) {
 			$this->wrap($cmd);
 		}
-		
+
 		return $this->connection->send($cmd);
 	}
 

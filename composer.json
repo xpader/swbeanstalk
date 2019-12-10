@@ -1,0 +1,16 @@
+{
+    "name": "pader/swbeanstalk",
+    "description": "A beanstalkd client base on swoole coroutine.",
+    "type": "library",
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Pader",
+            "email": "ypnow@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "ext-swoole": ">=4.4"
+    }
+}

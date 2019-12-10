@@ -2,7 +2,7 @@
 
 use Swoole\Coroutine;
 
-require_once __DIR__.'/../src/swbeanstalk.php';
+require_once __DIR__.'/../src/SWBeanstalk.php';
 
 
 function coJobConsumer($id) {
@@ -31,7 +31,7 @@ function coJobProducer() {
 	$client = getConnection();
 	echo "producer connected\r\n";
 
-	$client->use('test');
+	$client->useTube('test');
 
 	while (true) {
 		$ts = time();
