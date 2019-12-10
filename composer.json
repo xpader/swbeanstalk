@@ -2,7 +2,7 @@
     "name": "pader/swbeanstalk",
     "description": "A beanstalkd client base on swoole coroutine.",
     "type": "library",
-    "license": "BSD",
+    "license": "BSD-2-Clause-FreeBSD",
     "authors": [
         {
             "name": "Pader",
