@@ -1,6 +1,8 @@
 <?php
 
-class SWBeanstalk {
+namespace pader\swbeanstalk;
+
+class Client {
 
 	const DEFAULT_PRI = 60;
 	const DEFAULT_TTR = 30;

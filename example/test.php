@@ -1,8 +1,9 @@
 <?php
 
 use Swoole\Coroutine;
+use pader\swbeanstalk\Client;
 
-require_once __DIR__.'/../src/SWBeanstalk.php';
+require_once __DIR__.'/../src/Client.php';
 
 
 function coJobConsumer($id) {
@@ -42,7 +43,7 @@ function coJobProducer() {
 }
 
 function getConnection() {
-	$client = new SWBeanstalk('172.16.0.181', 11300, -1);
+	$client = new Client('172.16.0.181', 11300, -1);
 	$client->connect();
 	return $client;
 }
