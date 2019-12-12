@@ -92,9 +92,9 @@ class Client {
 		return $this->sendv(sprintf('delete %d', $id), 'DELETED');
 	}
 
-	public function release($id)
+	public function release($id, $pri=self::DEFAULT_PRI, $delay=0)
 	{
-		return $this->sendv(sprintf('release %d', $id), 'RELEASED');
+		return $this->sendv(sprintf('release %d %d %d', $id, $pri, $delay), 'RELEASED');
 	}
 
 	public function bury($id)
