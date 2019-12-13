@@ -2,21 +2,37 @@
 
 namespace pader\swbeanstalk;
 
-class Client {
+use Swoole\Coroutine\Client;
+
+/**
+ * Swbeanstalk
+ *
+ * A beanstalkd client base on swoole coroutine.
+ *
+ * @package pader\swbeanstalk
+ */
+class Swbeanstalk {
 
 	const DEFAULT_PRI = 60;
 	const DEFAULT_TTR = 30;
 
 	protected $config;
 	protected $connection;
-	protected $connected = false;
 	protected $lastError = null;
 
 	public $debug = false;
 
-	public function __construct($host='127.0.0.1', $port=11300, $timeout=-1)
+	/**
+	 * Swbeanstalk constructor.
+	 *
+	 * @param string $host
+	 * @param int $port
+	 * @param int $connectTimeout Connect timeout, -1 means never timeout.
+	 * @param int $timeout Read, write timeout, -1 means never timeout.
+	 */
+	public function __construct($host='127.0.0.1', $port=11300, $connectTimeout=1, $timeout=-1)
 	{
-		$this->config = compact('host', 'port', 'timeout');
+		$this->config = compact('host', 'port', 'connectTimeout', 'timeout');
 	}
 
 	public function connect()
@@ -25,21 +41,26 @@ class Client {
 			$this->disconnect();
 		}
 
-		$client = new \Swoole\Coroutine\Client(SWOOLE_SOCK_TCP);
-		$this->connected = $client->connect($this->config['host'], $this->config['port'], $this->config['timeout']);
+		$client = new Client(SWOOLE_SOCK_TCP);
+		$connected = $client->connect($this->config['host'], $this->config['port'], $this->config['connectTimeout']);
 
-		if ($this->connected) {
+		if ($connected) {
+			$client->set([
+				'socket_timeout' => $this->config['timeout']
+			]);
 			$this->connection = $client;
 		} else {
 			$client->close();
 		}
 
-		return $this->connected;
+		return $connected;
 	}
 
-	/**
-	 * Put job to current tube
-	 */
+	public function isConnected()
+	{
+		return $this->connection && $this->connection->isConnected();
+	}
+
 	public function put($data, $pri=self::DEFAULT_PRI, $delay=0, $ttr=self::DEFAULT_TTR)
 	{
 		$this->send(sprintf("put %d %d %d %d\r\n%s", $pri, $delay, $ttr, strlen($data), $data));
@@ -337,7 +358,7 @@ class Client {
 			$this->lastError = null;
 			return $error;
 		}
-		return null;;
+		return null;
 	}
 
 	protected function wrap($output)

@@ -1,13 +1,13 @@
 <?php
 
 use Swoole\Coroutine;
-use pader\swbeanstalk\Client;
+use pader\swbeanstalk\Swbeanstalk;
 
-require_once __DIR__.'/../src/Client.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 
 function coJobConsumer($id) {
-	echo "Create consumer: $id\n";
+	echo "Create consumer: $id.\n";
 
 	$workerId = $id;
 
@@ -29,6 +29,8 @@ function coJobConsumer($id) {
 }
 
 function coJobProducer() {
+	echo "Create producer.\n";
+
 	$client = getConnection();
 	echo "producer connected\r\n";
 
@@ -43,14 +45,16 @@ function coJobProducer() {
 }
 
 function getConnection() {
-	$client = new Client('172.16.0.181', 11300, -1);
-	$client->connect();
+	$client = new Swbeanstalk('172.16.0.181', 11300, 1);
+	if (!$client->connect()) {
+		throw new \ErrorException('Connect to beanstalkd failed.');
+	}
 	return $client;
 }
 
 $scheduler = new Coroutine\Scheduler;
 
-$workerNum = 5;
+$workerNum = 4;
 
 if ($workerNum > 0) {
 	for ($i=0; $i<$workerNum; $i++) {
