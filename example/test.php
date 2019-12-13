@@ -41,12 +41,13 @@ function coJobProducer() {
 		$ts = time();
 		$ret = $client->put($ts);
 		echo "Put job id: $ret\r\n";
-		System::sleep(0.2);
+		System::sleep(0.01);
 	}
 }
 
 function getConnection() {
-	$client = new Swbeanstalk('192.168.99.182', 11300, 1, -1);
+	$client = new Swbeanstalk('192.168.99.181', 11300, 1, 5);
+	//$client->debug = true;
 	if (!$client->connect()) {
 		throw new \ErrorException('Connect to beanstalkd failed.');
 	}

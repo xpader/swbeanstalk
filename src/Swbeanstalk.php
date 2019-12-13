@@ -32,29 +32,21 @@ class Swbeanstalk {
 	 */
 	public function __construct($host='127.0.0.1', $port=11300, $connectTimeout=1, $timeout=-1)
 	{
-		$this->config = compact('host', 'port', 'connectTimeout', 'timeout');
+		$this->config = compact('host', 'port');
+
+		$this->connection = new Client(SWOOLE_SOCK_TCP);
+		$this->connection->set([
+			'socket_connect_timeout' => $connectTimeout,
+			'socket_timeout' => $timeout
+		]);
 	}
 
 	public function connect()
 	{
-		if ($this->connection) {
-			$this->disconnect();
+		if ($this->isConnected()) {
+			$this->connection->close(true);
 		}
-
-		$client = new Client(SWOOLE_SOCK_TCP);
-		$client->set([
-			'socket_connect_timeout' => $this->config['connectTimeout'],
-			'socket_timeout' => $this->config['timeout']
-		]);
-		$connected = $client->connect($this->config['host'], $this->config['port']);
-
-		if ($connected) {
-			$this->connection = $client;
-		} else {
-			$client->close();
-		}
-
-		return $connected;
+		return $this->connection->connect($this->config['host'], $this->config['port']);
 	}
 
 	public function isConnected()
@@ -306,7 +298,7 @@ class Swbeanstalk {
 		$cmd .= "\r\n";
 
 		if ($this->debug) {
-			$this->wrap($cmd);
+			$this->wrap($cmd, true);
 		}
 
 		return $this->connection->send($cmd);
@@ -324,7 +316,7 @@ class Swbeanstalk {
 		$status = array_shift($meta);
 
 		if ($this->debug) {
-			$this->wrap($recv);
+			$this->wrap($recv, false);
 		}
 
 		return [
@@ -362,9 +354,10 @@ class Swbeanstalk {
 		return null;
 	}
 
-	protected function wrap($output)
+	protected function wrap($output, $out)
 	{
-		echo "\r\n<<-----\r\n$output\r\n----->>\r\n";
+		$line = $out ? '----->>' : '<<-----';
+		echo "\r\n$line\r\n$output\r\n$line\r\n";
 	}
 
 }
