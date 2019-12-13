@@ -1,6 +1,7 @@
 <?php
 
 use Swoole\Coroutine;
+use Swoole\Coroutine\System;
 use pader\swbeanstalk\Swbeanstalk;
 
 require_once __DIR__.'/../vendor/autoload.php';
@@ -40,12 +41,12 @@ function coJobProducer() {
 		$ts = time();
 		$ret = $client->put($ts);
 		echo "Put job id: $ret\r\n";
-		Co::sleep(0.2);
+		System::sleep(0.2);
 	}
 }
 
 function getConnection() {
-	$client = new Swbeanstalk('172.16.0.181', 11300, 1);
+	$client = new Swbeanstalk('192.168.99.182', 11300, 1, -1);
 	if (!$client->connect()) {
 		throw new \ErrorException('Connect to beanstalkd failed.');
 	}
@@ -63,12 +64,6 @@ if ($workerNum > 0) {
 }
 
 $scheduler->add('coJobProducer');
-
-// $scheduler->add(function() {
-// 	$client = getConnection();
-// 	$stats = $client->statsTube('test');
-// 	print_r($stats);
-// });
 
 $scheduler->start();
 

@@ -42,12 +42,13 @@ class Swbeanstalk {
 		}
 
 		$client = new Client(SWOOLE_SOCK_TCP);
-		$connected = $client->connect($this->config['host'], $this->config['port'], $this->config['connectTimeout']);
+		$client->set([
+			'socket_connect_timeout' => $this->config['connectTimeout'],
+			'socket_timeout' => $this->config['timeout']
+		]);
+		$connected = $client->connect($this->config['host'], $this->config['port']);
 
 		if ($connected) {
-			$client->set([
-				'socket_timeout' => $this->config['timeout']
-			]);
 			$this->connection = $client;
 		} else {
 			$client->close();
@@ -298,7 +299,7 @@ class Swbeanstalk {
 
 	protected function send($cmd)
 	{
-		if (!$this->connected) {
+		if (!$this->isConnected()) {
 			throw new \RuntimeException('No connecting found while writing data to socket.');
 		}
 
@@ -313,7 +314,7 @@ class Swbeanstalk {
 
 	protected function recv()
 	{
-		if (!$this->connected) {
+		if (!$this->isConnected()) {
 			throw new \RuntimeException('No connection found while reading data from socket.');
 		}
 
